@@ -9,7 +9,7 @@ echo This script will update DLSS and related files in the current directory.
 echo Are you sure you want to proceed? (Y/N)
 set /p proceed=
 if /I not "%proceed%"=="Y" (
-    echo Aborted!
+    echo Operation cancelled.
     exit /b
 )
 
@@ -25,59 +25,73 @@ set "nFiles="
 for %%f in ("%latestDir%\*.*") do (
     set "nFiles=!nFiles! %%~nxf"
 )
+echo File list from 'latest': !nFiles!
 
 echo Checking for existing files in the root directory...
 set "eFiles="
-for %%f in (%nFiles%) do (
+set "filesFound=false"
+for %%f in (!nFiles!) do (
     if exist "%rootDir%%%f" (
-        set "eFiles=!eFiles! %%f"
+        set "eFiles=!eFiles! %%~nxf"
+        set "filesFound=true"
     )
 )
+echo Existing files in root: !eFiles!
 
-if not defined eFiles (
+if "!filesFound!"=="false" (
     echo No DLSS and/or related files found in the current directory.
-    goto :fail
+    echo Operation cancelled.
+    pause
+    endlocal
+    exit /b
 )
 
 REM Check if the backup directory already contains files
-if exist "%backupDir%\*" (
-	echo.
+set "backupContainsFiles=false"
+for %%f in ("%backupDir%\*") do (
+    set "backupContainsFiles=true"
+    REM No need to use goto, just set the variable
+)
+
+if "!backupContainsFiles!"=="true" (
     echo Backup directory already contains files.
-    echo Type 1 then ENTER if you want to overwrite existing backups.
+    echo Do you want to continue and overwrite existing backups? (Y/N)
     set /p continueBackup=
-    if /I not "%continueBackup%"=="1" (
-        goto :fail
+    if /I not "%continueBackup%"=="Y" (
+        echo Operation cancelled.
+        exit /b
     )
 )
-echo.
 
 echo Backing up existing files...
 if not exist "%backupDir%" mkdir "%backupDir%"
-for %%f in (%eFiles%) do (
-    echo Copying %%f to backup directory...
+
+REM Loop through eFiles to copy to backup
+echo Backing up the following files:
+for %%f in (!eFiles!) do (
+    echo Copying "%%f" to backup directory...
     copy /Y "%rootDir%%%f" "%backupDir%\" >nul
+    if errorlevel 1 echo Failed to copy "%%f"
 )
 
 echo Creating file list of files to copy from 'latest' directory...
 set "cFiles="
-for %%f in (%eFiles%) do (
+for %%f in (!eFiles!) do (
     if exist "%latestDir%\%%f" (
         set "cFiles=!cFiles! %%f"
     )
 )
+echo Files to copy: !cFiles!
 
 echo Updating files in the current directory...
-for %%f in (%cFiles%) do (
-    echo Copying %%f from 'latest' to root directory...
+echo Copying the following files from 'latest' to root directory:
+for %%f in (!cFiles!) do (
+    echo Copying "%%f" from 'latest' to root directory...
     copy /Y "%latestDir%\%%f" "%rootDir%\" >nul
+    if errorlevel 1 echo Failed to copy "%%f"
 )
 
-:success
 echo Done.
-goto end
-
-:fail
-echo Aborted^^!
 goto end
 
 :intro
