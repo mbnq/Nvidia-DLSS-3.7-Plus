@@ -1,8 +1,6 @@
-# RA2YRBF
-mbnq's DLSS Patcher
-
+#
 ***********************************************************************
-	   ** Red Alert 2 Yuri's Revenge - Brute Force Beta **
+	   ** mbnq's DLSS Patcher **
 Version: 0.2.X
 DLSS version: 3.7.10
 ***********************************************************************
