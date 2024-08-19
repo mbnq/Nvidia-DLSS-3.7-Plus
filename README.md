@@ -23,6 +23,14 @@ https://github.com/NVIDIAGameWorks/Streamline
 ***********************************************************************
 **Important:**
 
+If windows makes you problem running patcher, follow this:
+
+   1.) click on the downloaded .zip file with right mouse button, then Properties
+
+   2.) look for Unblock option, use it and press ok
+
+   3.) now follow installation steps
+
 Although this script is safe to use, the author takes no responsibility for any potential issues. 
 You use this script at your own discretion. 
 New Nvidia files may not be compatible with all games.
