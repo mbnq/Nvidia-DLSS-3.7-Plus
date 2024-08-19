@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+REM Set the color scheme: black background and green text
+color 0A
+
 REM Ask the user if they want to proceed
 echo Are you sure you want to proceed with the operations? (Y/N)
 set /p proceed=
@@ -37,9 +40,40 @@ for %%f in (%nFiles%) do (
         echo File exists in root: %%f
     )
 )
+
+REM Check if eFiles is empty
+if not defined eFiles (
+    echo No DLSS files found in the root directory.
+    echo Operation completed.
+    pause >nul
+    endlocal
+    exit /b
+)
 echo.
 
-REM Step 3: Make a copy of eFiles to folder 'backup', force overwrite
+REM Step 3: Check if there are files in the 'backup' directory and ask if the user wants to overwrite
+set "backupFiles="
+for %%f in (%eFiles%) do (
+    if exist "%backupDir%\%%f" (
+        set "backupFiles=!backupFiles! %%f"
+    )
+)
+
+if defined backupFiles (
+    echo The following files already exist in the 'backup' directory:
+    for %%f in (%backupFiles%) do (
+        echo %%f
+    )
+    echo.
+    echo Do you want to overwrite these files? (Y/N)
+    set /p overwrite=
+    if /I not "%overwrite%"=="Y" (
+        echo Operation cancelled.
+        exit /b
+    )
+)
+
+REM Step 4: Make a copy of eFiles to folder 'backup', force overwrite
 echo Copying existing files to the 'backup' directory...
 for %%f in (%eFiles%) do (
     echo Copying %%f to backup directory...
@@ -47,7 +81,7 @@ for %%f in (%eFiles%) do (
 )
 echo.
 
-REM Step 4 and Step 5: Copy files from 'latest' to root if they exist in eFiles
+REM Step 5: Copy files from 'latest' to root if they exist in eFiles
 echo Updating files in the root directory...
 for %%f in (%eFiles%) do (
     echo Copying %%f from 'latest' to root directory...
