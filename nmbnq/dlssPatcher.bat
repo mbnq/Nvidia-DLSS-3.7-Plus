@@ -40,11 +40,9 @@ if "!filesFound!"=="false" (
 	goto fail
 )
 
-REM Check if the backup directory already contains files
 set "backupContainsFiles=false"
 for %%f in ("%backupDir%\*") do (
     set "backupContainsFiles=true"
-    REM No need to use goto, just set the variable
 )
 
 if "!backupContainsFiles!"=="true" (
@@ -52,7 +50,7 @@ if "!backupContainsFiles!"=="true" (
     echo Backup directory already contains files.
     echo Do you want to continue and overwrite existing backups? ^(Y/N^)
     set /p continueBackup=
-    if /I not "%continueBackup%"=="Y" (
+    if /I not "!continueBackup!"=="Y" (
 		goto fail
     )
 )
@@ -60,7 +58,6 @@ if "!backupContainsFiles!"=="true" (
 echo Backing up existing files...
 if not exist "%backupDir%" mkdir "%backupDir%"
 
-REM Loop through eFiles to copy to backup
 for %%f in (!eFiles!) do (
     echo Copying "%%f" to backup directory...
     copy /Y "%rootDir%%%f" "%backupDir%\" >nul
